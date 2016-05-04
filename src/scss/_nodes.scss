@@ -1,0 +1,28 @@
+/* propriétés par défaut des nodes */
+g {
+  fill: $nodes-couleur-defaut;
+  opacity: $nodes-opacite-defaut;
+}
+
+/* bordures du node racine */
+@if $nodes-racine-bordure{
+  g.n0 {
+    stroke: $nodes-racine-couleur;
+    stroke-width: $nodes-racine-epaisseur;
+  }
+}
+
+/* bordures des nodes thème */
+@if $nodes-themes-bordure{
+  g.n1 {
+    stroke: $nodes-themes-couleur;
+    stroke-width: $nodes-themes-epaisseur;
+  }
+}
+
+/* cycle d'assignement des couleurs */
+@for $i from 1 through $nombre-themes {
+  g.theme_#{$i} {
+    fill: nth($couleurs-themes, $i)
+  }
+}

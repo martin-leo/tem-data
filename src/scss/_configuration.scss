@@ -1,0 +1,43 @@
+/* PARAMÈTRES */
+$nombre-themes: 12;
+
+/* nodes */
+$nodes-couleur-defaut: white;
+$nodes-opacite-defaut: 1;
+/* racine */
+$nodes-racine-bordure: true;
+$nodes-racine-couleur: black;
+$nodes-racine-epaisseur: 10;
+/* thèmes */
+$nodes-themes-bordure: true;
+$nodes-themes-couleur: gold;
+$nodes-themes-epaisseur: 10;
+
+/* liens */
+$liens-couleurs-defaut: black;
+$liens-opacite-defaut: .5;
+/* liens de parenté */
+$liens-parente-epaisseur: 20;
+$liens-parente-opacite: .2;
+/* liens d'association */
+$liens-association-epaisseur: 10;
+$liens-association-opacite: .8;
+
+/* COULEURS */
+
+/* objet SVG */
+$svg-couleur-fond: white;
+
+/* thèmes */
+$couleurs-themes: mediumblue,
+                  deeppink,
+                  darkblue,
+                  blue,
+                  cadetblue,
+                  darkslategrey,
+                  firebrick,
+                  darkorange,
+                  crimson,
+                  navy,
+                  mediumslateblue,
+                  mediumseagreen;
