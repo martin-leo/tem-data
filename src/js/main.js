@@ -11,6 +11,7 @@
       - setup_visualisation() : setup de l'élément SVG et du layout D3.js
     D. Fonctions utiles
       - link_classes() : retourne un string contenant des classes pour un lien
+      - link_distance() : retourne un number pour linkDistance
       - node_classes() : retourne un string contenant des classes pour un node
     E. Dessin du graph
       - graph_init() : fin de la config du layout D3.js + sélections et config
@@ -31,8 +32,8 @@ var svg = {}; // svg object
 var graph = {}; // graph
 
 svg.TARGET = '#graph'; // élément où placer le svg
-svg.WIDTH = 800; // largeur de l'élément svg
-svg.HEIGHT = 600; // hauteur de l'élément svg
+svg.WIDTH = window.innerWidth; // largeur de l'élément svg
+svg.HEIGHT = window.innerHeight; // hauteur de l'élément svg
 svg.NODE_RADIUS = 10;
 svg.force; // D3's force layout
 svg.nodes; // sélection des éléments nodes
@@ -42,10 +43,14 @@ graph.SRC = 'data.json'; // fichier JSON à exploiter
 graph.data = {}; // graph
 graph.index = {}; // index id->objet des objets visibles
 graph.nodes = []; // nodes
-graph.links = []; // liens
+graph.themes = []; // themes
+graph.links = {}; // liens
+graph.links.liste = []; // liste des liens
+graph.links.taille = {};
+graph.links.taille.racine_theme = 150;
+graph.links.taille.theme_objet = 80;
+graph.links.taille.association = 50;
 
-graph.d3 = {};
-graph.d3.linkdistance = 50;
 /* ----------
 B. Import des données
 ---------- */
@@ -91,6 +96,8 @@ function setup_graph() {
     level++; // à chaque appel de setup on ajoute un niveau de profondeur
     if (level < 2) // tous les noeud de niveau < n visibles par défaut
     node.collapsed = false; // grâce à ceci
+    if (level === 1) // tous les noeud thèmes
+    graph.themes.push(node); // dans le tableau themes
     node.level = level; // on ajoute un propriété correspondant au niveau de profondeur
     if (node.children) node.children.forEach(recurse);
     level--; // à chaque sortie on enlève un niveau de profondeur
@@ -103,13 +110,11 @@ function setup_visualisation() {
   /* création de l'élément svg et dimensionnement
   Void -> Void */
   svg.graph = d3.select(svg.TARGET).append('svg')
-     .attr('width', svg.WIDTH)
-     .attr('height', svg.HEIGHT);
 
   // configuration du layout
-  svg.force = d3.layout.force()
-     .linkDistance(graph.d3.linkdistance)
-     .size([svg.WIDTH, svg.HEIGHT])
+  svg.force = cola.d3adaptor()
+    .linkDistance(link_distance)
+    .size([svg.WIDTH, svg.HEIGHT]);
 
   // on créé une sélection de tous les éléments de classes .link et .node
   // ces sélections ne correspondent à rien pour le moment
@@ -118,7 +123,9 @@ function setup_visualisation() {
 }
 
 function link_classes(d) {
-  /* todo */
+  /* Retourne un string regroupant les classes
+  à appliquer aux éléments line
+  Object -> String */
   var classes = '';
 
   if (d.nature === 'parenté') {
@@ -130,25 +137,58 @@ function link_classes(d) {
   return classes;
 }
 
+function link_distance(d){
+  /* Différenciation des tailles de liens
+  -> liens racine -> thème
+  -> liens thème -> objet
+  -> liens d'association
+  Object -> Number */
+  if (d.nature === "parenté") {
+    // liens de parenté
+    if (d.source.level === 0) {
+      // liens racine -> thème
+      return graph.links.taille.racine_theme;
+    } else {
+      // liens thème -> objet
+      return graph.links.taille.theme_objet;
+    }
+  } else {
+    // liens d'association
+    return graph.links.taille.association;
+  }
+}
+
 function node_classes(d) {
+  /* Retourne un string regroupant les classes
+  à appliquer aux éléments g (nodes)
+  Object -> String */
   var classes = '';
   classes +='node n' + d.level + ' ';
   classes += d.theme_principal ? 'theme_' + d.theme_principal + ' ': '';
   return classes;
 }
 
-function graph_init() {
+function resize() {
+  /* Permet le recentrage du graph
+  lors d'un redimensionnement de la page */
+  var width = window.innerWidth;
+  var height = window.innerHeight;
+  svg.force.size([width, height]).start();
+}
 
+function graph_init() {
+  /* Démarrage du graph, écouteurs
+  Void -> Void */
   svg.force // on finit la config du layout graph
     .nodes(graph.nodes) // on lui donne les nodes à manger
-    .links(graph.links) // et les liens
+    .links(graph.links.liste) // et les liens
     .start(); // on le démarre
 
   // gestion des éléments
   // liens
   // sélection des éléments .link
   svg.links = svg.graph.selectAll('.link')
-      .data(graph.links) // association des données
+      .data(graph.links.liste) // association des données
     .enter().append('line') // pour les donnée entrantes (toutes), on ajoute une line au graph
       .attr('class', link_classes) // on leur met la classe link
 
@@ -166,8 +206,10 @@ function graph_init() {
       .attr('dy', '.35em') // dont on config la position
       .text(function(d) { return d.name; }); // dans lequel on ajoute un élément texte contenant le texte du titre
 
-  // on ajoute un écouteur sur le temps
-  // pour l'anim
+  // écouteur sur le resize
+  window.addEventListener('resize', resize);
+
+  // écouteur sur le temps pour l'anim
   svg.force.on('tick', function() { // qui appelera le code qui suit
     // on met à jour les liens
     svg.links.attr('x1', function(d) { return d.source.x; })
@@ -188,7 +230,7 @@ function update() {
      Affichage
   */
   graph.nodes = []; // on reset les nodes
-  graph.links = []; // on reset les liens
+  graph.links.liste = []; // on reset les liens
   graph.index = {}; // on reset l'index
 
   function parcours(node) {
@@ -211,11 +253,12 @@ function update() {
     relation.nature = nature;
     relation.theme_principal = target.theme_principal;
     relation.themes_secondaires = target.themes_secondaires;
-    graph.links.push(relation);
+    graph.links.liste.push(relation);
   }
 
   function set_relations() {
-    /**/
+    /* Liste et crée les différents liens (parenté, associatifs)
+    Void -> Void*/
     function parcours(node) {
       /* Parcours DFS de l'arbre visant à établir les différents liens
          qu'ils soient parent->enfant ou associatifs
