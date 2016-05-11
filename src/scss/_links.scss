@@ -1,16 +1,16 @@
 line {
   //stroke: $liens-couleurs-defaut;
   stroke-linecap: round;
-  //opacity: .1;
+  opacity: .1;
 }
 line.association {
   stroke: $liens-couleurs-defaut;
   stroke-linecap: round;
-  opacity: .1;
+  opacity: 1;
 }
 /* cycle d'assignement des couleurs */
 @for $i from 1 through $nombre-themes {
   line.theme_#{$i} {
-    //stroke: nth($couleurs-themes, $i)
+    stroke: nth($couleurs-themes, $i)
   }
 }

@@ -239,6 +239,7 @@ tem_data.import('data.json',[go]);
 
 function go () {
   tem_data.process();
+  console.log(tem_data);
   carte.setup(tem_data);
   carte.selections();
   carte.evenements();

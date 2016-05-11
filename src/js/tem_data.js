@@ -112,7 +112,7 @@ var tem_data = (function () {
     tem_data.links_index = {}; // on reset l'index des liens
     tem_data.links = []; // on reset les liens
 
-    parcours(tem_data.data); // on rebuild
+    tem_data.data.children.forEach(parcours); // on rebuild en omettant le nœud racine
   }
 
   function listage_des_nodes() {
@@ -132,7 +132,7 @@ var tem_data = (function () {
     tem_data.nodes = []; // on reset les nodes
     tem_data.index = {}; // on reset l'index
 
-    parcours(tem_data.data); // on rebuild
+    tem_data.data.children.forEach(parcours); // on rebuild en omettant le nœud racine
   }
 
   tem_data.process = function() {
