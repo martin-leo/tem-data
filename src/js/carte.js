@@ -49,6 +49,8 @@ var carte = (function () {
   var zoom_min = 0.1;
   var zoom_max = 7;
   var charge = -50;
+  var node_taille_base = 2;
+  var node_taille_coeff = 2;
 
   carte = document.getElementById('carte');
 
@@ -65,7 +67,35 @@ var carte = (function () {
     return 10; // TODO
   }
 
-  function maj_dimensions(){
+  function link_classes(d) {
+    /* Renvoie un String où sont concaténées toutes les classes à appliquer au lien (éléments line)
+    Object -> String */
+    var classes = '';
+
+    if (d.nature === 'parenté') {
+      classes += 'link parente n' + d.source.level + ' ';
+      classes += d.theme_principal ? 'theme_' + d.theme_principal + ' ': '';
+    } else {
+      classes += 'link association n' + d.source.level;
+    }
+    return classes;
+  }
+
+  function node_classes(d) {
+    /* Renvoie un String où sont concaténées toutes les classes à appliquer au node (élements g)
+    Object -> String */
+    var classes = '';
+    classes +='node n' + d.level + ' ';
+    classes += d.theme_principal ? 'theme_' + d.theme_principal + ' ': '';
+    return classes;
+  }
+
+  function node_size(d) {
+    /* Renvoie la taille souhaitée du node selon son niveau */
+    return node_taille_base + (2 - d.level) * node_taille_coeff;;
+  }
+
+  function maj_dimensions() {
     /* Met à jour les variables width et height
     Void -> Void */
     width = carte.clientWidth;
@@ -120,9 +150,9 @@ var carte = (function () {
     /* On génère les différentes sélections */
     objet_carte.selections.nodes = conteneur.selectAll(".node")
       .data(graph.nodes) // bind des datas
-      .enter().append("g") // dans des g
-      .attr("class", "node") // classe .node
-      .append('circle').attr('r', 10)
+      .enter().append("g")
+      .attr('class', node_classes)
+      .append('circle').attr('r', node_size)
       .call(force.drag) // force drag (redondant avec le zoom ?)
   }
 
@@ -131,7 +161,8 @@ var carte = (function () {
   ---------- */
 
   objet_carte.evenements = function () {
-    /*  */
+    /* Déclaration des écouteurs d'événements
+    Void -> Void */
     force.on("tick", function() {
       /* Fonction d'animation */
 
