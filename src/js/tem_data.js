@@ -5,6 +5,7 @@ var tem_data = (function () {
   * méthodes fournies par l'objet
     * import(chemin) : importe le fichier correspondant à $chemin
     * process() : traite les données de manière à obtenir deux listes : nodes et liens.
+    * are_related(node a, node b)
   * propriétés
     * data : données importées depuis json et traitées
     * index : correspondance id->objets
@@ -18,9 +19,10 @@ var tem_data = (function () {
 
   // index id->objet des objets visibles
   tem_data.index = {};
+  // index source,target:true des liens d'association
+  tem_data.associations_index = {};
 
   tem_data.nodes = []; // liste des nodes
-  // tem_data.links_index = {}; // index des liens
   tem_data.links = []; // liste des liens
   tem_data.themes = []; // liste des thèmes
 
@@ -72,6 +74,7 @@ var tem_data = (function () {
   function new_relation (source, target, nature) {
     /* ajout d'une relation à la liste des liens
        Object, Object, String -> Void */
+    if (nature === 'association') { tem_data.associations_index[source.id + "," + target.id] = true; }
     var relation = {};
     relation.source = source;
     relation.target = target;
@@ -79,6 +82,10 @@ var tem_data = (function () {
     relation.theme_principal = target.theme_principal;
     relation.themes_secondaires = target.themes_secondaires;
     tem_data.links.push(relation);
+  }
+
+  tem_data.are_related = function (a, b) {
+    return tem_data.associations_index[a.id + "," + b.id] || tem_data.associations_index[b.id + "," + a.id] || a.id == b.id;
   }
 
   function mise_en_place_relations() {
@@ -109,7 +116,6 @@ var tem_data = (function () {
       if (node.children && node.collapsed == false) node.children.forEach(parcours);
     }
 
-    tem_data.links_index = {}; // on reset l'index des liens
     tem_data.links = []; // on reset les liens
 
     tem_data.data.children.forEach(parcours); // on rebuild en omettant le nœud racine

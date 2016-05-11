@@ -219,6 +219,7 @@ var carte = (function () {
 
     objet_carte.selections.nodes.on("mousedown", function(d) {
       d3.event.stopPropagation();
+      interactions.echo(d);
     });
 
     zoom.on("zoom", function() {
