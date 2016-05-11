@@ -16,6 +16,13 @@ var carte = (function () {
   * 3. Setup
   * 4. Sélections
   * 5. Événements
+
+  TODO :
+   * taille du graphe (linkDistance) selon taille de #carte
+   * interactions
+    * au mouseover sur un node
+      * mise en avant des nœud connectés
+      * affichage du contenu du node dans une section du site
   */
   "use strict";
 
@@ -49,8 +56,13 @@ var carte = (function () {
   var zoom_min = 0.1;
   var zoom_max = 7;
   var charge = -50;
-  var node_taille_base = 2;
-  var node_taille_coeff = 2;
+
+  var node_taille_base = 4;
+  var node_taille_coeff = 6;
+
+  var link_distance_base = 50;
+  var link_distance_diviseur = 32; // relatif à la taille de l'écran
+  var link_distance_coeff = 10;
 
   carte = document.getElementById('carte');
 
@@ -64,7 +76,25 @@ var carte = (function () {
     -> liens thème -> objet
     -> liens d'association
     Object -> Number */
-    return 10; // TODO
+
+    //width = carte.clientWidth;
+    //height = carte.clientHeight;
+    var etalon = width > height ? height : width;
+    var minimum = 15;
+    etalon /= link_distance_diviseur;
+    if (d.nature === "parenté") {
+      // liens de parenté
+      if (d.source.level === 0) {
+        // liens racine -> thème
+        return minimum < etalon ? 3 * etalon : 3 * minimum;
+      } else {
+        // liens thème -> objet
+        return minimum < etalon ? 1.5 * etalon : 1.5 * minimum;
+      }
+    } else {
+      // liens d'association
+      return minimum < etalon ? etalon : minimum;;
+    }
   }
 
   function link_classes(d) {
@@ -92,7 +122,7 @@ var carte = (function () {
 
   function node_size(d) {
     /* Renvoie la taille souhaitée du node selon son niveau */
-    return node_taille_base + (2 - d.level) * node_taille_coeff;;
+    return node_taille_base + (2 - d.level) * node_taille_coeff;
   }
 
   function maj_dimensions() {
@@ -104,6 +134,7 @@ var carte = (function () {
 
   objet_carte.resize = function () {
     /* Procède au resize et adapte le zoom selon */
+    console.log('resize');
     var W = carte.clientWidth;
     var H = carte.clientHeight;
 
@@ -111,7 +142,9 @@ var carte = (function () {
     svg.attr("width", W).attr("height", H);
 
     // recalcule de la taille
-    force.size([force.size()[0] + (W - width) / zoom.scale(), force.size()[1] + (H - height) / zoom.scale()]).resume();
+    // note : cola.d3adaptor ne dispose pas de la méthode .resume()
+    // on utilise donc start()
+    force.size([force.size()[0] + (W - width) / zoom.scale(), force.size()[1] + (H - height) / zoom.scale()]).start();
 
     // on enregistre les nouvelles dimensions
     maj_dimensions();
@@ -126,9 +159,9 @@ var carte = (function () {
     graph = data;
     maj_dimensions();
 
-    force = d3.layout.force()
+    force = cola.d3adaptor()// d3.layout.force()
       .linkDistance(link_distance)
-      .charge(charge)
+      //.charge(charge)
       .size([width, height])
       .nodes(graph.nodes)
       .links(graph.links)
@@ -148,12 +181,17 @@ var carte = (function () {
 
   objet_carte.selections = function () {
     /* On génère les différentes sélections */
-    objet_carte.selections.nodes = conteneur.selectAll(".node")
-      .data(graph.nodes) // bind des datas
-      .enter().append("g")
-      .attr('class', node_classes)
-      .append('circle').attr('r', node_size)
-      .call(force.drag) // force drag (redondant avec le zoom ?)
+
+    objet_carte.selections.links = conteneur.selectAll('.link')
+      .data(graph.links) // association des données
+      .enter().append('line') // pour les donnée entrantes (toutes), on ajoute une line au graph
+      .attr('class', link_classes) // on leur met la classe link
+      objet_carte.selections.nodes = conteneur.selectAll(".node")
+        .data(graph.nodes) // bind des datas
+        .enter().append("g")
+        .attr('class', node_classes)
+        .append('circle').attr('r', node_size)
+        .call(force.drag) // force drag (redondant avec le zoom ?)
   }
 
   /* ----------
@@ -170,6 +208,12 @@ var carte = (function () {
       objet_carte.selections.nodes.attr("transform", function(d) {
         return "translate(" + d.x + "," + d.y + ")";
       });
+
+    // on met à jour les liens
+    objet_carte.selections.links.attr('x1', function(d) { return d.source.x; })
+        .attr('y1', function(d) { return d.source.y; })
+        .attr('x2', function(d) { return d.target.x; })
+        .attr('y2', function(d) { return d.target.y; });
 
     });
 

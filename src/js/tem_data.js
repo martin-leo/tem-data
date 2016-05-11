@@ -143,7 +143,7 @@ var tem_data = (function () {
     if (!tem_data.themes.length) { parcours_dfs_initial_nodes() }
 
     listage_des_nodes();
-    // mise_en_place_relations();
+    mise_en_place_relations();
   }
 
   return tem_data;
