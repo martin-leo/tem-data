@@ -19,8 +19,13 @@ var tem_data = (function () {
 
   // index id->objet des objets visibles
   tem_data.index = {};
-  // index source,target:true des liens d'association
-  tem_data.associations_index = {};
+
+  // liens d'association
+  // index et listes sont séparés en raison
+  // de la copie par référence faite par javascript pour les objets
+  // mais par valeur pour les tableaux.
+  tem_data.associations_index = {}; // index id node -> index tableau des relations
+  tem_data.associations_liste = []; // liste des associations - index
 
   tem_data.nodes = []; // liste des nodes
   tem_data.links = []; // liste des liens
@@ -71,10 +76,30 @@ var tem_data = (function () {
     recurse(tem_data.data);
   }
 
+  function add_to_associations_liste(source, target) {
+    /* Gère l'ajout de la relation */
+    // s'il s'agit d'un lien d'association on va le recenser en particulier
+    // en vue de créer des highlights de réseaux de nodes associés.
+
+    // si la source n'est pas déjà recensée dans tem_data.associations_index tem_data.associations_index[source.id]);
+    if (!tem_data.associations_index[source.id]) {
+      tem_data.associations_index[source.id] = tem_data.associations_liste.push([]) - 1;
+    }
+    // si la cible n'est pas déjà recensée dans tem_data.associations_index
+    if (!tem_data.associations_index[target.id]) {
+      tem_data.associations_index[target.id] = tem_data.associations_liste.push([]) - 1;
+    }
+    // on peut maintenant ajouter la relation
+    tem_data.associations_liste[tem_data.associations_index[source.id]].push(target.id);
+    tem_data.associations_liste[tem_data.associations_index[target.id]].push(source.id);
+  }
+
   function new_relation (source, target, nature) {
     /* ajout d'une relation à la liste des liens
        Object, Object, String -> Void */
-    if (nature === 'association') { tem_data.associations_index[source.id + "," + target.id] = true; }
+    if (nature === 'association') {
+      add_to_associations_liste(source, target);
+    }
     var relation = {};
     relation.source = source;
     relation.target = target;

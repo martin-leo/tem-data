@@ -97,16 +97,22 @@ var carte = (function () {
     }
   }
 
+  function link_id(d) {
+    /* Renvoie un id.
+    Object -> String */
+    return d.source.id + '-' + d.target.id;
+  }
+
   function link_classes(d) {
     /* Renvoie un String où sont concaténées toutes les classes à appliquer au lien (éléments line)
     Object -> String */
     var classes = '';
 
     if (d.nature === 'parenté') {
-      classes += 'link parente n' + d.source.level + ' ';
-      classes += d.theme_principal ? 'theme_' + d.theme_principal + ' ': '';
+      classes += 'link parente n' + d.source.level;
     } else {
       classes += 'link association n' + d.source.level;
+      classes += d.theme_principal ? ' theme_' + d.theme_principal : '';
     }
     return classes;
   }
@@ -118,6 +124,12 @@ var carte = (function () {
     classes +='node n' + d.level + ' ';
     classes += d.theme_principal ? 'theme_' + d.theme_principal + ' ': '';
     return classes;
+  }
+
+  function node_id(d) {
+    /* Renvoie un id.
+    Object -> String */
+    return 'node_' + d.id;
   }
 
   function node_size(d) {
@@ -134,7 +146,6 @@ var carte = (function () {
 
   objet_carte.resize = function () {
     /* Procède au resize et adapte le zoom selon */
-    console.log('resize');
     var W = carte.clientWidth;
     var H = carte.clientHeight;
 
@@ -185,11 +196,13 @@ var carte = (function () {
     objet_carte.selections.links = conteneur.selectAll('.link')
       .data(graph.links) // association des données
       .enter().append('line') // pour les donnée entrantes (toutes), on ajoute une line au graph
+      .attr('id', link_id) // on leur met un id (si lien associatif)
       .attr('class', link_classes) // on leur met la classe link
       objet_carte.selections.nodes = conteneur.selectAll(".node")
         .data(graph.nodes) // bind des datas
         .enter().append("g")
         .attr('class', node_classes)
+        .attr('id', node_id)
         .append('circle').attr('r', node_size)
         .call(force.drag) // force drag (redondant avec le zoom ?)
   }
@@ -220,6 +233,19 @@ var carte = (function () {
     objet_carte.selections.nodes.on("mousedown", function(d) {
       d3.event.stopPropagation();
       interactions.echo(d);
+      //interactions.highlight_network(d);
+    });
+
+    objet_carte.selections.nodes.on("mouseenter", function(d) {
+      d3.event.stopPropagation();
+      interactions.echo(d);
+      interactions.highlight_network(d);
+      //console.log(d);
+    });
+
+    objet_carte.selections.nodes.on("mouseout", function(d) {
+      //d3.event.stopPropagation();
+      interactions.remove_nodes_hightlights();
     });
 
     zoom.on("zoom", function() {

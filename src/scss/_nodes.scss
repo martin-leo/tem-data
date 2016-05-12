@@ -1,9 +1,31 @@
 .node {
   //opacity: .5;
 }
+.node.highlighted {
+    stroke: gold;
+    stroke-width: 2;
+}
+.node.n1 {
+  //display: none;
+}
+
+[data-highlighted='réseau'] .node, [data-highlighted^="theme-"] .node {
+  opacity: .2;
+}
+
 /* cycle d'assignement des couleurs */
 @for $i from 1 through $nombre-themes {
   g.theme_#{$i} {
     fill: nth($couleurs-themes, $i)
   }
+  [data-highlighted=theme-#{$i}] .node.theme_#{$i} {
+    opacity: 1;
+    stroke: gold;
+    stroke-width: 2;
+  }
+}
+
+
+.node.highlighted {
+  opacity: 1;
 }
