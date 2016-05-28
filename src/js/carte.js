@@ -18,11 +18,9 @@ var carte = (function () {
   * 5. Événements
 
   TODO :
-   * taille du graphe (linkDistance) selon taille de #carte
    * interactions
     * au mouseover sur un node
-      * mise en avant des nœud connectés
-      * affichage du contenu du node dans une section du site
+      * tooltip
   */
   "use strict";
 
@@ -166,13 +164,13 @@ var carte = (function () {
   ---------- */
 
   objet_carte.setup = function (data) {
-    /* Référencement des données et mise en place du layout */
+    /* Référencement des données et mise en place du layout
+    Object -> Void */
     graph = data;
     maj_dimensions();
 
     force = cola.d3adaptor()// d3.layout.force()
       .linkDistance(link_distance)
-      //.charge(charge)
       .size([width, height])
       .nodes(graph.nodes)
       .links(graph.links)
@@ -191,8 +189,8 @@ var carte = (function () {
   ---------- */
 
   objet_carte.selections = function () {
-    /* On génère les différentes sélections */
-
+    /* On génère les différentes sélections
+    Void -> Void */
     objet_carte.selections.links = conteneur.selectAll('.link')
       .data(graph.links) // association des données
       .enter().append('line') // pour les donnée entrantes (toutes), on ajoute une line au graph
@@ -233,18 +231,15 @@ var carte = (function () {
     objet_carte.selections.nodes.on("mousedown", function(d) {
       d3.event.stopPropagation();
       interactions.echo(d);
-      //interactions.highlight_network(d);
     });
 
     objet_carte.selections.nodes.on("mouseenter", function(d) {
       d3.event.stopPropagation();
       interactions.echo(d);
       interactions.highlight_network(d);
-      //console.log(d);
     });
 
     objet_carte.selections.nodes.on("mouseout", function(d) {
-      //d3.event.stopPropagation();
       interactions.remove_nodes_hightlights();
     });
 
@@ -261,14 +256,3 @@ var carte = (function () {
 
   return objet_carte;
 })();
-
-tem_data.import('data.json',[go]);
-
-function go () {
-  tem_data.process();
-  console.log(tem_data);
-  carte.setup(tem_data);
-  carte.selections();
-  carte.evenements();
-
-}

@@ -1,7 +1,22 @@
 interactions = (function() {
   /* Interactions avec la carte
-  Void -> Object */
+  Void -> Object
+  Méthode :
+  * echo() : écrit les informations du node dans la display_zone
+  * highlight_network() : applique une classe css de higlight à un réseau de nodes
+  * remove_nodes_hightlights() : supprime les classes css de highlight présentes
+  */
+  "use strict";
   var interactions = {};
+  var network;
+  var tem_data;
+
+  interactions.configure = function (_tem_data, _network) {
+    /* Référencement de l'objet network pour usage par l'objet interactions
+    Object -> Void */
+    network = _network;
+    tem_data = _tem_data;
+  }
 
   interactions.echo = function (node) {
     var texte = '<ul>';
@@ -13,11 +28,12 @@ interactions = (function() {
   }
 
   interactions.highlight_network = function (d) {
-    /*  */
-    // Si l'on sur un objet
+    /* applique une classe css de higlight à un réseau de nodes
+    Object -> Void */
+    // Si l'on est sur un objet
     if (d.level !== 1) {
       highlight(true, 'réseau');
-      network.get_elements(tem_data.associations_liste, tem_data.associations_index, d, 10)
+      network.get_elements(tem_data.associations_liste, tem_data.associations_index, d, 1)
              .forEach(function (id) {
                try { document.getElementById(id).classList.add('highlighted'); }
                catch (e) {
@@ -29,14 +45,15 @@ interactions = (function() {
                }
       });
     }
-    // Si l'on sur un thème
+    // Si l'on est sur un thème
     if (d.level !== 2) {
       highlight(true, 'theme-' + d.theme_principal);
     }
   }
 
   interactions.remove_nodes_hightlights =  function () {
-    /* Permet de disabler le highlight */
+    /* Permet de disabler le highlight
+    Void -> Void */
     var highlighted = document.getElementsByClassName('highlighted');
     while (highlighted.length > 0) {
      highlighted.item(0).classList.remove('highlighted');

@@ -4,14 +4,16 @@ var tem_data = (function () {
   Les données sont traitées de manière à obtenir deux listes : nodes et liens.
   * méthodes fournies par l'objet
     * import(chemin) : importe le fichier correspondant à $chemin
+    * are_related(node a, node b) : Renvoie un booléen indiquant si deux nœud ont un lien d'association.
     * process() : traite les données de manière à obtenir deux listes : nodes et liens.
-    * are_related(node a, node b)
   * propriétés
     * data : données importées depuis json et traitées
     * index : correspondance id->objets
     * nodes : liste des nodes actifs
     * links : listes des liens actifs
     * themes : listes des themes
+  TODO:
+    * message d'erreur si problème d'importation via interactions
    */
   "use strict";
   var tem_data = {}; // objet retourné par la fonction anonyme
@@ -77,7 +79,8 @@ var tem_data = (function () {
   }
 
   function add_to_associations_liste(source, target) {
-    /* Gère l'ajout de la relation */
+    /* Gère l'ajout de la relation
+    Object, Object -> Void */
     // s'il s'agit d'un lien d'association on va le recenser en particulier
     // en vue de créer des highlights de réseaux de nodes associés.
 
@@ -110,13 +113,15 @@ var tem_data = (function () {
   }
 
   tem_data.are_related = function (a, b) {
+    /* Renvoie un booléen indiquant si deux nœud ont un lien d'association.
+    Object, Object -> Void */
     return tem_data.associations_index[a.id + "," + b.id] || tem_data.associations_index[b.id + "," + a.id] || a.id == b.id;
   }
 
   function mise_en_place_relations() {
     /* Liste et crée les différents liens (parenté, associatifs),
     trouvés dans tem_data.data.
-    Void -> Void*/
+    Void -> Void */
     function parcours(node) {
       /* Parcours DFS de l'arbre visant à établir les différents liens
          qu'ils soient parent->enfant ou associatifs
@@ -147,7 +152,8 @@ var tem_data = (function () {
   }
 
   function listage_des_nodes() {
-    /* Parcours tem_data.data de manière à alimenter les liste des nodes */
+    /* Parcours tem_data.data de manière à alimenter les liste des nodes
+    Void -> Void */
     function parcours(node) {
       /* Parcours DFS de l'arbre visant à lister les noeud actifs
          Object -> Void
@@ -167,7 +173,8 @@ var tem_data = (function () {
   }
 
   tem_data.process = function() {
-    /* Traite les données importées et les stocke dans tem_data.nodes et tem_data.links */
+    /* Traite les données importées et les stocke dans tem_data.nodes et tem_data.links
+    Void -> Void */
 
     // si l'on n'a pas encore fait le parcours initial
     // (ici on utilise la liste de thème pour vérifier)
