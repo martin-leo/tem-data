@@ -18,6 +18,11 @@ interactions = (function() {
     tem_data = _tem_data;
   }
 
+  interactions.creer_infobulle = function (node) {
+    // console.log('go', node);
+    infobulle.creer(node.x, node.y);
+  }
+
   interactions.echo = function (node) {
     var texte = '<ul>';
     texte += '<li>id : ' + node.id + '</li>'

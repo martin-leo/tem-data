@@ -48,7 +48,7 @@ var tem_data = (function () {
       /* Chargement du JSON */
       if (erreur) {
         console.error('Erreur lors du chargement des données depuis ' + chemin + '.');
-        console.log('erreur renvoyée :', error);
+        console.log('erreur renvoyée :', erreur);
       } else {
         //stockage_json = json;
         tem_data.data = json;

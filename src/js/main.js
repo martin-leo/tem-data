@@ -6,6 +6,7 @@ function go () {
   tem_data.process();
   console.log(tem_data);
   carte.setup(tem_data);
+  console.log(tem_data);
   carte.selections();
   carte.evenements();
 }

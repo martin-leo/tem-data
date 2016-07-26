@@ -235,6 +235,7 @@ var carte = (function () {
 
     objet_carte.selections.nodes.on("mouseenter", function(d) {
       d3.event.stopPropagation();
+      interactions.creer_infobulle(d);
       interactions.echo(d);
       interactions.highlight_network(d);
     });
