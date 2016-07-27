@@ -18,13 +18,30 @@ interactions = (function() {
     tem_data = _tem_data;
   }
 
-  interactions.creer_infobulle = function (node) {
-    // console.log('go', node);
+  interactions.afficher_infobulle = function (node) {
+    /* affiche une infobulle avec des informations sur le node donné
+    Object -> Void */
+    infobulle.modifier_contenu('<h1>' + node.name +'</h1>');
     infobulle.afficher();
     infobulle.positionner(node.x, node.y);
   }
 
+  interactions.bouger_infobulle = function (node) {
+    /* positionne l'infobulle
+    Object -> Void */
+    infobulle.positionner(node.x, node.y);
+  }
+
+  interactions.enlever_infobulle = function () {
+    /* Cache l'infobulle et met son contenu à zéro
+    Void -> Void */
+    infobulle.cacher();
+    infobulle.mise_a_zero();
+  };
+
   interactions.echo = function (node) {
+    /* affiche des informations dans la zone latérale
+    Object -> Void*/
     var texte = '<ul>';
     texte += '<li>id : ' + node.id + '</li>'
     texte += '<li>name : ' + node.name + '</li>'

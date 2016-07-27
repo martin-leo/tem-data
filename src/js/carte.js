@@ -235,19 +235,27 @@ var carte = (function () {
 
     });
 
+    // Lorsque l'on clique sur la souris sur un node
     objet_carte.selections.nodes.on("mousedown", function(d) {
       d3.event.stopPropagation();
-      interactions.echo(d);
+      // si l'on bouge le curseur (= drag)
+      objet_carte.selections.nodes.on("mousemove", function(d) {
+        d3.event.stopPropagation();
+        interactions.bouger_infobulle(d);
+      });
     });
 
+    // lors du début du survol d'un node
     objet_carte.selections.nodes.on("mouseenter", function(d) {
       d3.event.stopPropagation();
-      interactions.creer_infobulle(d);
+      interactions.afficher_infobulle(d);
       interactions.echo(d);
       interactions.highlight_network(d);
     });
 
+    // à la fin du survol d'un node
     objet_carte.selections.nodes.on("mouseout", function(d) {
+      interactions.enlever_infobulle();
       interactions.remove_nodes_hightlights();
     });
 

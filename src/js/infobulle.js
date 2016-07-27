@@ -1,85 +1,70 @@
 var infobulle = (function(){
   /*
+    Infobulle permmetant l'affichage dynamique d'informations
+    relatives aux nœuds de la cartographie.
   */
   "use strict";
 
+  // objet infobulle retourné par la fonction anonyme
   var infobulle = {};
+  // l'infobulle injectée dans le DOM
   var bulle;
-  var transform = {};
+  // offset vertical de l'infobulle en pixels
+  var offset_y = -10;
+  // contenu lorsque vide
+  var message_vide = '<h2>infobulle vide</h2><p>Pas de contenu survolé actuellement</p>';
 
+  // constructeur appelé en fin de fonction
   infobulle.constructeur = function () {
-    /**/
+    /* créé l'élément infobulle et l'insère dans le DOM
+    Void -> Void */
     var a = document.createElement("section");
     a.setAttribute('id', 'infobulle');
-    a.style.display = 'block';
-    a.style.position = 'fixed';
+    a.style.position = 'absolute';
+    a.innerHTML = message_vide;
     bulle = document.body.appendChild(a);
   };
 
   infobulle.afficher = function () {
-    /**/
-    bulle.style.position = 'absolute';
+    /* affiche l'infobulle
+    Void -> Void */
+    bulle.style.display = 'block';
+  };
+
+  infobulle.cacher = function () {
+    /* cache l'infobulle
+    Void -> Void */
+    bulle.style.display = 'none';
+  };
+
+  infobulle.mise_a_zero = function () {
+    /* Met l'info-bulle à zéro */
+    bulle.innerHTML = message_vide;
   };
 
   infobulle.positionner = function (x, y) {
-    /**/
+    /* positionne l'infobulle en regard des coordonnées en entrée
+    Int, Int -> Void */
+    // on applique les transformations du SVG
     x = (x * carte.transformations.scale) + carte.transformations.translate.x;
     y = (y * carte.transformations.scale) + carte.transformations.translate.y;
+    // on centre en x et applique un offset en y
+    x = x - bulle.offsetWidth/2;
+    y = y - bulle.offsetHeight + offset_y;
+    // on applique
     bulle.style.left = x + 'px';
     bulle.style.top = y + 'px';
   };
 
-  infobulle.taille = function () {
-    /**/
-    return [0,0];
-  };
-
   infobulle.modifier_contenu = function (contenu) {
-    /**/
-    var a;
+    /* Modification du contenu de l'info-bulle
+    String -> Void */
+    bulle.innerHTML = contenu;
   };
 
+  // on appelle le constructeur
   infobulle.constructeur();
 
+  // on retourne l'objet
   return infobulle;
 })();
-
-/*
-
-infobulle.creer = function (x, y) {
-  var transformations = {};
-  transformations.translate = 0;
-  transformations.scale = 0;
-  var scale = 1;
-  var translate = [0,0];
-  var t = document.getElementById('carte').firstChild.firstChild;
-  if(t.getAttribute("transform")){
-    var valeurs = t.getAttribute("transform").replace(/\(/gi,'').replace(/\)/gi,'').replace('translate','').replace('scale','|').split('|');
-    scale = parseFloat(valeurs[1]);
-    translate = valeurs[0].split(',');
-    translate[0] = parseFloat(translate[0]);
-    translate[1] = parseFloat(translate[1]);
-    console.log('scale', scale);
-    console.log('translate', translate)
-  }
-
-  var bulle;
-  if ( document.getElementById('infobulle') ) {
-    bulle = document.getElementById('infobulle');
-    bulle.remove();
-  }
-  bulle = document.createElement("section");
-  bulle.setAttribute('id', 'infobulle');
-  bulle.innerHTML = "<h1>infobulle</h1>";
-  //var x = translate[0] + x / scale;
-  //var y = translate[1] + y / scale;
-
-  x = (x * scale) + translate[0];
-  y = (y * scale) + translate[1];
-
-  bulle.style.left = x + 'px';
-  bulle.style.top = y + 'px';
-  document.body.appendChild(bulle);
-}
-
-*/
