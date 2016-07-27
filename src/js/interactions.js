@@ -20,7 +20,8 @@ interactions = (function() {
 
   interactions.creer_infobulle = function (node) {
     // console.log('go', node);
-    infobulle.creer(node.x, node.y);
+    infobulle.afficher();
+    infobulle.positionner(node.x, node.y);
   }
 
   interactions.echo = function (node) {
