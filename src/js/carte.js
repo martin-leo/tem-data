@@ -50,6 +50,13 @@ var carte = (function () {
   var width;
   var height;
 
+  // transformations appliquées à la carte
+  objet_carte.transformations = {};
+  objet_carte.transformations.scale = 1;
+  objet_carte.transformations.translate = {};
+  objet_carte.transformations.translate.x = 0;
+  objet_carte.transformations.translate.y = 0;
+
   // paramètres
   var zoom_min = 0.1;
   var zoom_max = 7;
@@ -157,7 +164,7 @@ var carte = (function () {
 
     // on enregistre les nouvelles dimensions
     maj_dimensions();
-  }
+  };
 
   /* ----------
   3. Setup
@@ -245,8 +252,22 @@ var carte = (function () {
     });
 
     zoom.on("zoom", function() {
-      /* Application du zoom du zoom */
-      conteneur.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+      /* Application du zoom
+      Void -> Void */
+
+      // variables de travail
+      var translate = d3.event.translate;
+      var scale = d3.event.scale;
+
+      // on enregistre les infos dans une propriété
+      objet_carte.transformations.scale = scale;
+      objet_carte.transformations.translate = {};
+      objet_carte.transformations.translate.x = translate[0];
+      objet_carte.transformations.translate.y = translate[1];
+
+      // on applique
+      conteneur.attr("transform", "translate(" + translate + ")scale(" + scale + ")");
+
     });
 
     svg.call(zoom); // on applique le zoom à l'objet svg
