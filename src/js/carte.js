@@ -98,7 +98,7 @@ var carte = (function () {
       }
     } else {
       // liens d'association
-      return minimum < etalon ? etalon : minimum;;
+      return minimum < etalon ? etalon : minimum;
     }
   }
 
@@ -202,14 +202,24 @@ var carte = (function () {
       .data(graph.links) // association des données
       .enter().append('line') // pour les donnée entrantes (toutes), on ajoute une line au graph
       .attr('id', link_id) // on leur met un id (si lien associatif)
-      .attr('class', link_classes) // on leur met la classe link
+      .attr('class', link_classes); // on leur met la classe link
       objet_carte.selections.nodes = conteneur.selectAll(".node")
         .data(graph.nodes) // bind des datas
+        .enter().append("svg:path")
+        .attr("d", function (d) { return shapes.diamond(d); })
+        .attr('class', node_classes)
+        .attr('id', node_id)
+        //.attr('void', function (d) { console.log('d', d); })
+        .call(force.drag); // force drag (redondant avec le zoom ?)
+
+        /*
         .enter().append("g")
         .attr('class', node_classes)
         .attr('id', node_id)
         .append('circle').attr('r', node_size)
+        .attr('void', function (d) { console.log('d', d); })
         .call(force.drag) // force drag (redondant avec le zoom ?)
+        */
   }
 
   /* ----------

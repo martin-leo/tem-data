@@ -50,7 +50,7 @@ var infobulle = (function(){
     y = (y * carte.transformations.scale) + carte.transformations.translate.y;
     // on centre en x et applique un offset en y
     x = x - bulle.offsetWidth/2;
-    y = y - bulle.offsetHeight + offset_y;
+    y = y - bulle.offsetHeight + offset_y * carte.transformations.scale;
     // on applique
     bulle.style.left = x + 'px';
     bulle.style.top = y + 'px';
