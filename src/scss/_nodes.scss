@@ -14,8 +14,9 @@
 }
 
 /* cycle d'assignement des couleurs */
+
 @for $i from 1 through $nombre-themes {
-  g.theme_#{$i} {
+  .node.theme_#{$i} {
     fill: nth($couleurs-themes, $i)
   }
   [data-highlighted=theme-#{$i}] .node.theme_#{$i} {

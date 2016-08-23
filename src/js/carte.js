@@ -127,7 +127,7 @@ var carte = (function () {
     Object -> String */
     var classes = '';
     classes +='node n' + d.level + ' ';
-    classes += d.theme_principal ? 'theme_' + d.theme_principal + ' ': '';
+    classes += d.theme_principal ? 'theme_' + d.theme_principal : '';
     return classes;
   }
 
@@ -186,10 +186,10 @@ var carte = (function () {
     // sélection côté svg : objet svg appendé à body
     svg = d3.select("#carte").append("svg").attr("width", width).attr("height", height);
     // création du zoom
-    zoom = d3.behavior.zoom().scaleExtent([zoom_min, zoom_max])
+    zoom = d3.behavior.zoom().scaleExtent([zoom_min, zoom_max]);
     // création d'un conteneur dans svg et stockage dans var conteneur
     conteneur = svg.append("g");
-  }
+  };
 
   /* ----------
   4. Sélections
@@ -205,8 +205,14 @@ var carte = (function () {
       .attr('class', link_classes); // on leur met la classe link
       objet_carte.selections.nodes = conteneur.selectAll(".node")
         .data(graph.nodes) // bind des datas
-        .enter().append("svg:path")
-        .attr("d", function (d) { return shapes.diamond(d); })
+        //.enter().append("svg:path")
+        //.enter().append( function (d) {  var a = shapes.return_type(d); console.log(a);return a; } )
+        .enter().append( function (d) { return shapes.return_svg_element(d); } )
+        //.enter().append( function (d) { return "svg:path"; } )
+        .attr("d", function (d) { return shapes.return_d(d); })
+        .attr("r", function (d) { return shapes.return_r(d); })
+        .attr("width", function (d) { return shapes.return_width(d); })
+        .attr("height", function (d) { return shapes.return_height(d); })
         .attr('class', node_classes)
         .attr('id', node_id)
         //.attr('void', function (d) { console.log('d', d); })
@@ -220,7 +226,7 @@ var carte = (function () {
         .attr('void', function (d) { console.log('d', d); })
         .call(force.drag) // force drag (redondant avec le zoom ?)
         */
-  }
+  };
 
   /* ----------
   5. Événements
