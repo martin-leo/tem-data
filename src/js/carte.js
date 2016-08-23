@@ -207,7 +207,7 @@ var carte = (function () {
         .data(graph.nodes) // bind des datas
         //.enter().append("svg:path")
         //.enter().append( function (d) {  var a = shapes.return_type(d); console.log(a);return a; } )
-        .enter().append( function (d) { return shapes.return_type(d); } )
+        .enter().append( function (d) { return shapes.return_svg_element(d); } )
         //.enter().append( function (d) { return "svg:path"; } )
         .attr("d", function (d) { return shapes.return_d(d); })
         .attr("r", function (d) { return shapes.return_r(d); })

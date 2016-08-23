@@ -1,11 +1,12 @@
 var shapes = (function(){
-  /* */
+  /* namespace relatif à tout ce qui est relatif au dessin des formes de la carte
+  Void -> Object */
+
+  // namespace pour les éléments SVG
   var SVG_namespace = 'http://www.w3.org/2000/svg';
   var shapes = {};
-  shapes.width = 50;
-  shapes.height = 50;
 
-  //
+  /* Objet/dictionnaires des formes personnalisées */
   var shapes_dict = {
     square : {
       type : 'path',
@@ -168,11 +169,7 @@ var shapes = (function(){
     },
   };
 
-  shapes.get_shapes_dict = function() {
-    return shapes_dict;
-  }
-
-  //
+  // association thème principal -> Forme
   var shapes_index = {
     1 : shapes_dict.circle,
     2 : shapes_dict.square,
@@ -188,60 +185,117 @@ var shapes = (function(){
     12 : shapes_dict.triangle_variant,
   };
 
-  shapes.return_type = function (d) {
+  shapes.return_svg_element = function (d) {
+    /* Retourne un élément SVG créé d'après le dictionnaire des formes
+    Object -> Object */
     return document.createElementNS(SVG_namespace, shapes_index[d.theme_principal].type);
   };
 
   shapes.return_d = function (d) {
-  if (shapes_index[d.theme_principal].attributes.d) {
-    if (d.theme_principal > 9) { test = true }
-    var values = shapes_index[d.theme_principal].attributes.d;
-    var scale = d.level == 1 ? 2 : 1;
-    //console.log("scale", scale);
-    var output = output_svg(values, scale);
+    /* Retourne l'attribue d d'un élément si existant ou undefined
+    Object -> String/undefined */
 
-    return output;
-  } else { return undefined; }
+    /* si le dictionnaire précise l'existance d'un attribut d
+       on renvoie une chaine de caractère représentant les commandes de tracé */
+    if (shapes_index[d.theme_principal].attributes.d) {
+
+      // on copie les valeurs
+      var values = shapes_index[d.theme_principal].attributes.d;
+
+      // on modifie l'échelle en cas d'élément thème
+      var scale = d.level == 1 ? 2 : 1;
+
+      // on retourne la chaîne de commande
+      return output_path_commands(values, scale);
+
+    /* si le dictionnaire ne précise pas d'attribut d on renvoie undefined
+       (l'attribut ne sera alors pas ajouté à l'élément) */
+    } else { return undefined; }
   };
 
   shapes.return_r = function (d) {
+    /* Retourne l'attribue r d'un élément si existant ou undefined
+    Object -> String/undefined */
+
+    /* si le dictionnaire précise l'existance d'un attribut r
+       on renvoie le rayon correspondant */
     if (shapes_index[d.theme_principal].attributes.r) {
+
+      // on modifie l'échelle en cas d'élément thème
       var scale = d.level == 1 ? 2 : 1;
+
+      // on renvoie le rayon mis à l'échelle
       return scale_value(scale,shapes_index[d.theme_principal].attributes.r);
+
+    /* si le dictionnaire ne précise pas d'attribut r on renvoie undefined
+       (l'attribut ne sera alors pas ajouté à l'élément) */
     } else { return undefined; }
   };
 
   shapes.return_width = function (d) {
+    /* Retourne l'attribue width d'un élément si existant ou undefined
+    Object -> String/undefined */
+
+    /* si le dictionnaire précise l'existance d'un attribut width
+       on renvoie le rayon correspondant */
     if (shapes_index[d.theme_principal].attributes.width) {
+
+      // on modifie l'échelle en cas d'élément thème
       var scale = d.level == 1 ? 3 : 1;
+
+      // on renvoie la largeur mise à l'échelle
       return scale_value(scale,shapes_index[d.theme_principal].attributes.width);
+
+    /* si le dictionnaire ne précise pas d'attribut width on renvoie undefined
+       (l'attribut ne sera alors pas ajouté à l'élément) */
     } else { return undefined; }
   };
 
   shapes.return_height = function (d) {
+    /* Retourne l'attribue height d'un élément si existant ou undefined
+    Object -> String/undefined */
+
+    /* si le dictionnaire précise l'existance d'un attribut height
+       on renvoie le rayon correspondant */
     if (shapes_index[d.theme_principal].attributes.height) {
+
+      // on modifie l'échelle en cas d'élément thème
       var scale = d.level == 1 ? 2 : 1;
+
+      // on renvoie la hauteur mise à l'échelle
       return scale_value(scale,shapes_index[d.theme_principal].attributes.height);
+
+    /* si le dictionnaire ne précise pas d'attribut height on renvoie undefined
+       (l'attribut ne sera alors pas ajouté à l'élément) */
     } else { return undefined; }
   };
 
-  function output_svg (input, scale) {
-    /**/
+  function output_path_commands (input, scale) {
+    /*  Retourne une chaîne de commande de tracé à partir de la propriété d d'un élément du dictionnaire
+    Object, Number -> String */
+
+    // conteneur pour mise à l'échelle
     var values;
-    var output;
-    // scaling the values
+
+    // si l'échelle est != 1 on met à l'échelle
     if (scale !== 1) {
       values = scale_d(input, scale);
     } else {
       values = input;
     }
-    output = serialize_d (values);
-    return output;
+
+    // on retourne les valeurs sous forme de chaîne de caractères
+    return serialize_d(values);
   }
 
   function serialize_d (d) {
-    /*  */
+    /* retourne la propriété d d'un élément sous forme de chaîne de caractère
+    Array d'Array -> String*/
+
+    // chaîne en sortie
     var output = "";
+
+    // on process les données en entrée
     for (var i = 0; i < d.length; i++) {
       for (var j = 0; j < d[i].length; j++) {
         output = output + d[i][j];
@@ -250,13 +304,19 @@ var shapes = (function(){
         }
       }
     }
+
+    // on retourne la chaîne
     return output;
   }
 
   function scale_d (values, scale) {
-    /**/
-    console.log(" ----- scale_d", values, scale);
+    /* Met à l'échelle la propriété d d'un élément du dictionnaire
+    Array d'Array, Number -> Array d'Array */
+
+    // valeurs en sortie
     var output = [];
+
+    // on process les données en entrées
     for (var i = 0; i < values.length; i++) {
       output.push([]);
       for (var u = 0; u < values[i].length; u++) {
@@ -268,11 +328,16 @@ var shapes = (function(){
         }
       }
     }
+
+    // on retourne les données mises à l'échelle
     return output;
   }
 
   function scale_value (coeff, value) {
-    /**/
+    /* Met à l'échelle une valeur
+    Number, Number -> Number */
+
+    // si le coeff est un on retourne directement la valeur en entrée
     if (coeff === 1) {
       return value;
     } else {
@@ -307,8 +372,3 @@ var shapes = (function(){
 
   return shapes;
 })();
-
-
-document.getElementById('data_display').addEventListener('click', function() {
-  console.log(shapes.get_shapes_dict());
-},false);
